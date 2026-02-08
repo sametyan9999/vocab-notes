@@ -1,0 +1,68 @@
+/* =========
+   words/index.css
+   目的：一覧が見やすく・検索しやすく
+   配置：左=単語 / 中央=意味+メモ / 右=タグ / 右端=操作
+========= */
+
+/* 検索エリアを上に固定して“探しやすく” */
+.words-search {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 12px;
+    background: #f8f9fa;
+    /* body bg-lightと同系 */
+    border: 1px solid rgba(0, 0, 0, .08);
+    border-radius: 12px;
+}
+
+/* 1件の表示を見やすく */
+.words-item {
+    border-radius: 12px;
+    margin-bottom: 10px;
+}
+
+/* 左：単語 */
+.word-term {
+    font-weight: 700;
+    font-size: 1.08rem;
+    line-height: 1.2;
+    word-break: break-word;
+}
+
+/* 中央：意味 */
+.word-meaning {
+    font-size: .95rem;
+    color: rgba(0, 0, 0, .78);
+    word-break: break-word;
+}
+
+/* 中央：メモ（意味とタグの間） */
+.word-note {
+    margin-top: 6px;
+    font-size: .85rem;
+    color: #6c757d;
+    word-break: break-word;
+
+    /* 長いときは2行で省略（不要なら消してOK） */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* 右：タグ */
+.word-tags {
+    margin-top: 2px;
+    font-size: .85rem;
+}
+
+.word-tags .badge {
+    margin-left: 4px;
+    margin-bottom: 4px;
+}
+
+/* 右端：ボタン */
+.word-actions .btn {
+    min-width: 70px;
+}

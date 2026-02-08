@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/tags.css') }}">
+@endpush
+
 @section('title', 'タグ管理')
 @section('page_title', 'タグ管理')
 
@@ -30,21 +34,29 @@
         @forelse($tags as $tag)
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
-                    <strong>{{ $tag->name }}</strong>
+                    <a href="{{ route('words.index', ['tag' => $tag->id]) }}" class="tag-link">
+                        {{ $tag->name }}
+                    </a>
                     <span class="text-muted small ms-2">
                         （使用中：{{ $tag->words_count }}件）
                     </span>
                 </div>
 
-                <form action="{{ route('tags.destroy', $tag) }}" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit"
-                            class="btn btn-sm btn-outline-danger"
-                            onclick="return confirm('タグ「{{ $tag->name }}」を削除しますか？')">
-                        削除
-                    </button>
-                </form>
+                <div class="d-flex gap-2">
+                    <a href="{{ route('tags.edit', $tag) }}" class="btn btn-sm btn-outline-primary">
+                        編集
+                    </a>
+
+                    <form action="{{ route('tags.destroy', $tag) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                                class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('タグ「{{ $tag->name }}」を削除しますか？')">
+                            削除
+                        </button>
+                    </form>
+                </div>
             </li>
         @empty
             <li class="list-group-item text-muted">タグがまだありません</li>

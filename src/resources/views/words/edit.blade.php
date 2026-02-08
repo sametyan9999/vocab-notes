@@ -34,7 +34,7 @@
     </div>
 
     <div class="mb-3">
-        <label class="form-label">タグ（複数選択）</label><br>
+        <label class="form-label">タグ（複数選択）</label>
         @forelse($tags as $tag)
             <div class="form-check form-check-inline">
                 <input class="form-check-input" type="checkbox" name="tags[]" value="{{ $tag->id }}"

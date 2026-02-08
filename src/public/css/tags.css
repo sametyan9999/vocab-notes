@@ -1,0 +1,26 @@
+.tags-form {
+    margin-bottom: 1.5rem;
+}
+
+.tag-item {
+    font-size: 1rem;
+}
+
+.tag-count {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.tag-actions .btn {
+    min-width: 60px;
+}
+.tag-link {
+    text-decoration: none;
+    font-weight: 600;
+    color: inherit;
+    /* 普通の文字っぽく */
+}
+
+.tag-link:hover {
+    text-decoration: underline;
+}

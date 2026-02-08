@@ -35,9 +35,9 @@ class WordController extends Controller
             });
         }
 
-        // データ取得
-        $words = $wordsQuery->get();
-        $tags = Tag::orderBy('name')->get();
+// データ取得（ページネーション）
+$words = $wordsQuery->paginate(10)->withQueryString();
+$tags = Tag::orderBy('name')->get();
 
         // 一覧画面へ
         return view('words.index', compact('words', 'tags', 'q', 'tagId'));

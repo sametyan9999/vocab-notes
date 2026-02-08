@@ -3,7 +3,11 @@
 <head>
     <meta charset="utf-8">
     <title>単語帳</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    {{-- ★ ページごとのCSSを読み込む場所 --}}
+    @stack('styles')
 </head>
 <body class="bg-light">
 <div class="container py-4">
