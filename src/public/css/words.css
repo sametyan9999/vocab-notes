@@ -1,19 +1,69 @@
 /* =========
-   words/index.css
+   words.css
    目的：一覧が見やすく・検索しやすく
-   配置：左=単語 / 中央=意味+メモ / 右=タグ / 右端=操作
+   配置：左=単語 / 中央=意味 / 右寄り=メモ / 右=タグ / 右端=操作
 ========= */
 
-/* 検索エリアを上に固定して“探しやすく” */
-.words-search {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    padding: 12px;
-    background: #f8f9fa;
-    /* body bg-lightと同系 */
-    border: 1px solid rgba(0, 0, 0, .08);
-    border-radius: 12px;
+/* 上段：左タイトル / 右上検索 */
+.words-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+/* ✅ 右上検索：gridをやめてflexに（崩れにくい） */
+.words-search-mini {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    /* 画面が狭いときは折り返す */
+    justify-content: flex-end;
+    /* 右寄せ */
+}
+
+/* 入力系の幅（好みで調整） */
+.words-search-mini__q {
+    width: 220px;
+}
+
+.words-search-mini__tag {
+    width: 140px;
+}
+
+/* 並び順（横並びの塊） */
+.words-sort {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.words-sort__label {
+    margin-right: 2px;
+}
+
+/* 画面が狭いとき */
+@media (max-width: 768px) {
+    .words-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .words-search-mini {
+        justify-content: flex-start;
+    }
+
+    .words-search-mini__q {
+        width: 100%;
+        max-width: 320px;
+    }
+
+    .words-search-mini__tag {
+        width: 160px;
+    }
 }
 
 /* 1件の表示を見やすく */
@@ -22,12 +72,22 @@
     margin-bottom: 10px;
 }
 
-/* 左：単語 */
+/* 左：単語（読み方含む） */
 .word-term {
-    font-weight: 700;
-    font-size: 1.08rem;
-    line-height: 1.2;
     word-break: break-word;
+}
+
+.word-reading {
+    font-size: 0.8rem;
+    color: #6c757d;
+    line-height: 1.1;
+    margin-bottom: 2px;
+}
+
+.word-term-main {
+    font-weight: 700;
+    font-size: 1.05rem;
+    line-height: 1.2;
 }
 
 /* 中央：意味 */
@@ -37,7 +97,7 @@
     word-break: break-word;
 }
 
-/* 中央：メモ（意味とタグの間） */
+/* 右寄り：メモ（小さめ） */
 .word-note {
     margin-top: 6px;
     font-size: .85rem;
@@ -58,11 +118,54 @@
 }
 
 .word-tags .badge {
-    margin-left: 4px;
+    margin-right: 4px;
     margin-bottom: 4px;
+}
+
+/* メモとタグ：左揃えのまま、列の中で少し右へ寄せる */
+.word-note,
+.word-tags {
+    padding-left: 12px;
+    /* ←ここだけ好みで調整 */
 }
 
 /* 右端：ボタン */
 .word-actions .btn {
     min-width: 70px;
+}
+
+/* ページネーション周り */
+.words-pagination {
+    margin-bottom: 24px;
+}
+
+.words-count {
+    margin-top: 8px;
+}
+
+/* 追加フォーム内：タグチェックを見やすく */
+.tag-checklist {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    padding: 10px 12px;
+    border: 1px solid rgba(0, 0, 0, .08);
+    border-radius: 12px;
+    background: #fff;
+    max-height: 140px;
+    overflow: auto;
+}
+
+.tag-checklist__item {
+    margin: 0;
+}
+.words-sort {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.words-sort__label {
+    margin-right: 4px;
+    white-space: nowrap;
 }

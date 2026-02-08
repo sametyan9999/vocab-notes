@@ -15,6 +15,7 @@ class UpdateWordRequest extends FormRequest
     {
         return [
             'term' => ['required', 'string', 'max:255'],
+            'reading' => ['nullable', 'string', 'max:255'], // ← ここに追加
             'meaning' => ['required', 'string', 'max:255'],
             'note' => ['nullable', 'string'],
 
@@ -29,6 +30,7 @@ class UpdateWordRequest extends FormRequest
     {
         return [
             'term' => '単語',
+            'reading' => '読み方', // ← ここに追加
             'meaning' => '意味',
             'note' => 'メモ',
             'tags' => 'タグ',
@@ -42,12 +44,16 @@ class UpdateWordRequest extends FormRequest
         return [
             'term.required' => ':attributeは必須です。',
             'meaning.required' => ':attributeは必須です。',
+
             'term.max' => ':attributeは:max文字以内で入力してください。',
+            'reading.max' => ':attributeは:max文字以内で入力してください。', // ← 追加
             'meaning.max' => ':attributeは:max文字以内で入力してください。',
             'note.max' => ':attributeは:max文字以内で入力してください。',
+
             'tags.array' => ':attributeの形式が正しくありません。',
             'tags.*.integer' => ':attributeの形式が正しくありません。',
             'tags.*.exists' => '選択した:attributeが存在しません。',
+
             'new_tag_name.max' => ':attributeは:max文字以内で入力してください。',
         ];
     }

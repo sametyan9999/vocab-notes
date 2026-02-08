@@ -7,7 +7,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Word extends Model
 {
-    protected $fillable = ['term', 'meaning', 'note'];
+    protected $fillable = [
+        'term',
+        'reading',   // ← 読み方を追加
+        'meaning',
+        'note',
+    ];
 
     public function tags(): BelongsToMany
     {
