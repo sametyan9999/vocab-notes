@@ -6,73 +6,77 @@ use App\Http\Requests\StoreWordRequest;
 use App\Http\Requests\UpdateWordRequest;
 use App\Models\Tag;
 use App\Models\Word;
+use App\Models\Wordbook;
 use Illuminate\Http\Request;
 
 class WordController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request, Wordbook $wordbook)
     {
-        // 検索キーワードとタグID、並び順を取得
         $q     = $request->query('q');
         $tagId = $request->query('tag');
-        $sort  = $request->query('sort', 'latest'); // latest / oldest / term
+        $sort  = $request->query('sort', 'latest');
 
-        // 単語取得の準備（タグも一緒に）
-        $wordsQuery = Word::query()->with('tags');
+        // この単語帳の単語だけ取得
+        $wordsQuery = $wordbook->words()->with('tags');
 
-        // キーワード検索
         if ($q) {
             $wordsQuery->where(function ($query) use ($q) {
                 $query->where('term', 'like', "%{$q}%")
-                      ->orWhere('reading', 'like', "%{$q}%")
-                      ->orWhere('meaning', 'like', "%{$q}%")
-                      ->orWhere('note', 'like', "%{$q}%");
+                    ->orWhere('reading', 'like', "%{$q}%")
+                    ->orWhere('meaning', 'like', "%{$q}%")
+                    ->orWhere('note', 'like', "%{$q}%");
             });
         }
 
         // タグ絞り込み
         if ($tagId) {
-            $wordsQuery->whereHas('tags', function ($query) use ($tagId) {
-                $query->where('tags.id', $tagId);
+            $wordsQuery->whereHas('tags', function ($query) use ($tagId, $wordbook) {
+                $query->where('tags.id', $tagId)
+                      ->where('tags.wordbook_id', $wordbook->id);
             });
         }
 
-        // 並び順
         switch ($sort) {
             case 'oldest':
-                $wordsQuery->oldest(); // created_at 昇順
+                $wordsQuery->oldest();
                 break;
-
             case 'term':
-                // 単語（term）での文字列順
                 $wordsQuery->orderBy('term');
                 break;
-
             default:
-                $wordsQuery->latest(); // created_at 降順
+                $wordsQuery->latest();
                 break;
         }
 
-        // データ取得（ページネーション）
         $perPage = (int) $request->query('per_page', 10);
         $words   = $wordsQuery->paginate($perPage)->withQueryString();
-        $tags    = Tag::orderBy('name')->get();
 
-        // 一覧画面へ
-        return view('words.index', compact('words', 'tags', 'q', 'tagId', 'sort', 'perPage'));
+        // ★ 並び替え後の順番で単語帳タブを表示
+        $wordbooks = Wordbook::orderBy('id')->get();
+
+        // この単語帳のタグだけ表示
+        $tags = Tag::where('wordbook_id', $wordbook->id)
+            ->orderBy('name')
+            ->get();
+
+        return view('words.index', compact(
+            'wordbook',
+            'wordbooks',
+            'words',
+            'tags',
+            'q',
+            'tagId',
+            'sort',
+            'perPage'
+        ));
     }
 
-    public function create()
-    {
-        $tags = Tag::orderBy('name')->get();
-        return view('words.create', compact('tags'));
-    }
-
-    public function store(StoreWordRequest $request)
+    public function store(StoreWordRequest $request, Wordbook $wordbook)
     {
         $validated = $request->validated();
 
-        $word = Word::create([
+        $word = $wordbook->words()->create([
             'term'    => $validated['term'],
             'reading' => $validated['reading'] ?? null,
             'meaning' => $validated['meaning'],
@@ -86,25 +90,43 @@ class WordController extends Controller
 
         $newTagName = trim($validated['new_tag_name'] ?? '');
         if ($newTagName !== '') {
-            $tag = Tag::firstOrCreate(['name' => $newTagName]);
+            $tag = Tag::firstOrCreate([
+                'wordbook_id' => $wordbook->id,
+                'name' => $newTagName,
+            ]);
             $tagIds = $tagIds->push($tag->id)->unique()->values();
         }
 
-        $word->tags()->sync($tagIds->all());
+        $tagIds = Tag::where('wordbook_id', $wordbook->id)
+            ->whereIn('id', $tagIds->all())
+            ->pluck('id')
+            ->all();
 
-        return redirect()->route('words.index');
+        $word->tags()->sync($tagIds);
+
+        return redirect()->route('wordbooks.words.index', $wordbook);
     }
 
-    public function edit(Word $word)
+    public function edit(Wordbook $wordbook, Word $word)
     {
-        $tags = Tag::orderBy('name')->get();
+        abort_unless($word->wordbook_id === $wordbook->id, 404);
+
+        $tags = Tag::where('wordbook_id', $wordbook->id)
+            ->orderBy('name')
+            ->get();
+
         $selectedTagIds = $word->tags()->pluck('tags.id')->all();
 
-        return view('words.edit', compact('word', 'tags', 'selectedTagIds'));
+        // ★ ここも sort_order に統一
+        $wordbooks = Wordbook::orderBy('sort_order')->orderBy('id')->get();
+
+        return view('words.edit', compact('wordbook', 'wordbooks', 'word', 'tags', 'selectedTagIds'));
     }
 
-    public function update(UpdateWordRequest $request, Word $word)
+    public function update(UpdateWordRequest $request, Wordbook $wordbook, Word $word)
     {
+        abort_unless($word->wordbook_id === $wordbook->id, 404);
+
         $validated = $request->validated();
 
         $word->update([
@@ -121,20 +143,30 @@ class WordController extends Controller
 
         $newTagName = trim($validated['new_tag_name'] ?? '');
         if ($newTagName !== '') {
-            $tag = Tag::firstOrCreate(['name' => $newTagName]);
+            $tag = Tag::firstOrCreate([
+                'wordbook_id' => $wordbook->id,
+                'name' => $newTagName,
+            ]);
             $tagIds = $tagIds->push($tag->id)->unique()->values();
         }
 
-        $word->tags()->sync($tagIds->all());
+        $tagIds = Tag::where('wordbook_id', $wordbook->id)
+            ->whereIn('id', $tagIds->all())
+            ->pluck('id')
+            ->all();
 
-        return redirect()->route('words.index')->with('success', '更新しました');
+        $word->tags()->sync($tagIds);
+
+        return redirect()->route('wordbooks.words.index', $wordbook)->with('success', '更新しました');
     }
 
-    public function destroy(Word $word)
+    public function destroy(Wordbook $wordbook, Word $word)
     {
+        abort_unless($word->wordbook_id === $wordbook->id, 404);
+
         $word->tags()->detach();
         $word->delete();
 
-        return redirect()->route('words.index');
+        return redirect()->route('wordbooks.words.index', $wordbook);
     }
 }

@@ -14,7 +14,7 @@
     </div>
 @endif
 
-<form method="POST" action="{{ route('words.update', $word) }}" class="card card-body">
+<form method="POST" action="{{ route('wordbooks.words.update', [$wordbook, $word]) }}" class="card card-body">
     @csrf
     @method('PUT')
 
@@ -24,13 +24,24 @@
     </div>
 
     <div class="mb-3">
+        <label class="form-label">読み方（任意）</label>
+        <input
+            type="text"
+            name="reading"
+            class="form-control"
+            value="{{ old('reading', $word->reading) }}"
+            placeholder="例：ららべる"
+        >
+    </div>
+
+    <div class="mb-3">
         <label class="form-label">意味</label>
-        <input type="text" name="meaning" class="form-control" value="{{ old('meaning', $word->meaning) }}">
+        <textarea name="meaning" class="form-control" rows="5" required>{{ old('meaning', $word->meaning) }}</textarea>
     </div>
 
     <div class="mb-3">
         <label class="form-label">メモ</label>
-        <textarea name="note" class="form-control" rows="3">{{ old('note', $word->note) }}</textarea>
+        <textarea name="note" class="form-control" rows="5">{{ old('note', $word->note) }}</textarea>
     </div>
 
     <div class="mb-3">
@@ -53,7 +64,7 @@
 
     <div class="d-flex gap-2">
         <button type="submit" class="btn btn-primary">更新</button>
-        <a href="{{ route('words.index') }}" class="btn btn-outline-secondary">戻る</a>
+        <a href="{{ route('wordbooks.words.index', $wordbook) }}" class="btn btn-outline-secondary">戻る</a>
     </div>
 </form>
 @endsection

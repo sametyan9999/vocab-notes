@@ -18,4 +18,9 @@ class Word extends Model
     {
         return $this->belongsToMany(Tag::class);
     }
+
+    public function wordbook()
+    {
+    return $this->belongsTo(Wordbook::class);
+    }
 }

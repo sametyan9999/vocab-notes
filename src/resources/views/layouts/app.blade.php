@@ -6,18 +6,23 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    {{-- ★ ページごとのCSSを読み込む場所 --}}
+    {{-- ★ ページごとのCSS --}}
     @stack('styles')
 </head>
-<body class="bg-light">
+<body class="app-bg">
 <div class="container py-4">
-    <h1 class="mb-4">📒 単語帳アプリ</h1>
+
+    <h1 class="notebook-title">📒 My単語帳</h1>
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
     @yield('content')
+
 </div>
+
+{{-- ★ ページごとのJS（Sortable含む） --}}
+@stack('scripts')
 </body>
 </html>
