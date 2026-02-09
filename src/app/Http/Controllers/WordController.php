@@ -15,7 +15,7 @@ class WordController extends Controller
         // 検索キーワードとタグID、並び順を取得
         $q     = $request->query('q');
         $tagId = $request->query('tag');
-        $sort  = $request->query('sort', 'latest'); // latest / oldest / reading / term
+        $sort  = $request->query('sort', 'latest'); // latest / oldest / term
 
         // 単語取得の準備（タグも一緒に）
         $wordsQuery = Word::query()->with('tags');
@@ -37,23 +37,14 @@ class WordController extends Controller
             });
         }
 
-        // 並び順（ここで確定）
+        // 並び順
         switch ($sort) {
             case 'oldest':
                 $wordsQuery->oldest(); // created_at 昇順
                 break;
 
-            case 'reading':
-                // あいうえお順（reading が空のものは後ろに回したい場合）
-                // DBがMySQLなら orderByRaw が使いやすい
-                $wordsQuery
-                    ->orderByRaw("CASE WHEN reading IS NULL OR reading = '' THEN 1 ELSE 0 END")
-                    ->orderBy('reading')
-                    ->orderBy('term');
-                break;
-
             case 'term':
-                // 単語（term）での文字列順（英単語を入れる想定なら便利）
+                // 単語（term）での文字列順
                 $wordsQuery->orderBy('term');
                 break;
 
@@ -67,7 +58,7 @@ class WordController extends Controller
         $words   = $wordsQuery->paginate($perPage)->withQueryString();
         $tags    = Tag::orderBy('name')->get();
 
-        // 一覧画面へ（sort も渡す）
+        // 一覧画面へ
         return view('words.index', compact('words', 'tags', 'q', 'tagId', 'sort', 'perPage'));
     }
 

@@ -10,8 +10,11 @@
 @section('content')
     {{-- 上段：左にタイトル、右上に小さめ検索 --}}
     <div class="words-toolbar">
-        <div class="words-toolbar__left">
+        <div class="words-toolbar__left d-flex align-items-center gap-2">
             <h2 class="m-0">単語一覧</h2>
+            <a href="{{ route('tags.index') }}" class="btn btn-sm btn-outline-secondary">
+                🏷 タグ管理
+            </a>
         </div>
 
         <form method="GET" action="{{ route('words.index') }}" class="words-search-mini">
@@ -34,6 +37,7 @@
 
             <button type="submit" class="btn btn-sm btn-secondary">検索</button>
             <a href="{{ route('words.index') }}" class="btn btn-sm btn-outline-secondary">クリア</a>
+
             {{-- 並び順（ラジオ：切替で自動送信） --}}
             <div class="words-sort">
                 <span class="text-muted small words-sort__label">並び順：</span>
@@ -60,17 +64,6 @@
                         onchange="this.form.submit()"
                     >
                     <label class="btn btn-outline-secondary" for="sort-oldest">古い順</label>
-
-                    <input
-                        type="radio"
-                        class="btn-check"
-                        name="sort"
-                        id="sort-reading"
-                        value="reading"
-                        @checked(($sort ?? 'latest') === 'reading')
-                        onchange="this.form.submit()"
-                    >
-                    <label class="btn btn-outline-secondary" for="sort-reading">あいうえお順</label>
                 </div>
             </div>
         </form>

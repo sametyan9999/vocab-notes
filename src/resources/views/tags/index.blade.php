@@ -8,12 +8,6 @@
 @section('page_title', 'タグ管理')
 
 @section('content')
-
-    {{-- 成功メッセージ --}}
-    @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
-    @endif
-
     {{-- タグ追加フォーム --}}
     <div class="card mb-4">
         <div class="card-body">
@@ -50,9 +44,11 @@
                     <form action="{{ route('tags.destroy', $tag) }}" method="POST">
                         @csrf
                         @method('DELETE')
-                        <button type="submit"
-                                class="btn btn-sm btn-outline-danger"
-                                onclick="return confirm('タグ「{{ $tag->name }}」を削除しますか？')">
+                        <button
+                            type="submit"
+                            class="btn btn-sm btn-outline-danger"
+                            onclick="return confirm('タグ「{{ $tag->name }}」を削除しますか？')"
+                        >
                             削除
                         </button>
                     </form>
@@ -66,5 +62,4 @@
     <div class="mt-4">
         <a href="{{ route('words.index') }}" class="btn btn-outline-secondary">← 単語一覧へ戻る</a>
     </div>
-
 @endsection
