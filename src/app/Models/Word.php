@@ -9,9 +9,14 @@ class Word extends Model
 {
     protected $fillable = [
         'term',
-        'reading',   // ← 読み方を追加
+        'reading',
         'meaning',
         'note',
+        'is_favorite',
+    ];
+
+    protected $casts = [
+        'is_favorite' => 'boolean',
     ];
 
     public function tags(): BelongsToMany
@@ -21,6 +26,6 @@ class Word extends Model
 
     public function wordbook()
     {
-    return $this->belongsTo(Wordbook::class);
+        return $this->belongsTo(Wordbook::class);
     }
 }

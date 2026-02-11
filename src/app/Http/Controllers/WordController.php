@@ -12,65 +12,72 @@ use Illuminate\Http\Request;
 class WordController extends Controller
 {
     public function index(Request $request, Wordbook $wordbook)
-    {
-        $q     = $request->query('q');
-        $tagId = $request->query('tag');
-        $sort  = $request->query('sort', 'latest');
+{
+    $q     = $request->query('q');
+    $tagId = $request->query('tag');
+    $sort  = $request->query('sort', 'latest');
+    $fav   = $request->query('fav'); // '1' のときお気に入りだけ
 
-        // この単語帳の単語だけ取得
-        $wordsQuery = $wordbook->words()->with('tags');
+    // この単語帳の単語だけ取得
+    $wordsQuery = $wordbook->words()->with('tags');
 
-        if ($q) {
-            $wordsQuery->where(function ($query) use ($q) {
-                $query->where('term', 'like', "%{$q}%")
-                    ->orWhere('reading', 'like', "%{$q}%")
-                    ->orWhere('meaning', 'like', "%{$q}%")
-                    ->orWhere('note', 'like', "%{$q}%");
-            });
-        }
-
-        // タグ絞り込み
-        if ($tagId) {
-            $wordsQuery->whereHas('tags', function ($query) use ($tagId, $wordbook) {
-                $query->where('tags.id', $tagId)
-                      ->where('tags.wordbook_id', $wordbook->id);
-            });
-        }
-
-        switch ($sort) {
-            case 'oldest':
-                $wordsQuery->oldest();
-                break;
-            case 'term':
-                $wordsQuery->orderBy('term');
-                break;
-            default:
-                $wordsQuery->latest();
-                break;
-        }
-
-        $perPage = (int) $request->query('per_page', 10);
-        $words   = $wordsQuery->paginate($perPage)->withQueryString();
-
-        // ★ 並び替え後の順番で単語帳タブを表示
-        $wordbooks = Wordbook::orderBy('id')->get();
-
-        // この単語帳のタグだけ表示
-        $tags = Tag::where('wordbook_id', $wordbook->id)
-            ->orderBy('name')
-            ->get();
-
-        return view('words.index', compact(
-            'wordbook',
-            'wordbooks',
-            'words',
-            'tags',
-            'q',
-            'tagId',
-            'sort',
-            'perPage'
-        ));
+    // ★ お気に入り絞り込み
+    if ($fav === '1') {
+        $wordsQuery->where('is_favorite', true);
     }
+
+    if ($q) {
+        $wordsQuery->where(function ($query) use ($q) {
+            $query->where('term', 'like', "%{$q}%")
+                ->orWhere('reading', 'like', "%{$q}%")
+                ->orWhere('meaning', 'like', "%{$q}%")
+                ->orWhere('note', 'like', "%{$q}%");
+        });
+    }
+
+    // タグ絞り込み
+    if ($tagId) {
+        $wordsQuery->whereHas('tags', function ($query) use ($tagId, $wordbook) {
+            $query->where('tags.id', $tagId)
+                  ->where('tags.wordbook_id', $wordbook->id);
+        });
+    }
+
+    switch ($sort) {
+        case 'oldest':
+            $wordsQuery->oldest();
+            break;
+        case 'term':
+            $wordsQuery->orderBy('term');
+            break;
+        default:
+            $wordsQuery->latest();
+            break;
+    }
+
+    $perPage = (int) $request->query('per_page', 10);
+    $words   = $wordsQuery->paginate($perPage)->withQueryString();
+
+    // ★ 並び替え後の順番で単語帳タブを表示
+    $wordbooks = Wordbook::orderBy('sort_order')->orderBy('id')->get();
+
+    // この単語帳のタグだけ表示
+    $tags = Tag::where('wordbook_id', $wordbook->id)
+        ->orderBy('name')
+        ->get();
+
+    return view('words.index', compact(
+        'wordbook',
+        'wordbooks',
+        'words',
+        'tags',
+        'q',
+        'tagId',
+        'sort',
+        'perPage',
+        'fav'
+    ));
+}
 
     public function store(StoreWordRequest $request, Wordbook $wordbook)
     {

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WordController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\WordbookController;
+use App\Http\Controllers\WordFavoriteController;
 use App\Models\Wordbook;
 
 /*
@@ -67,3 +68,5 @@ Route::delete('/wordbooks/{wordbook}', [WordbookController::class, 'destroy'])
     ->name('wordbooks.destroy');
 Route::post('/wordbooks/reorder', [WordbookController::class, 'reorder'])
     ->name('wordbooks.reorder');
+Route::patch('/wordbooks/{wordbook}/words/{word}/favorite', [WordFavoriteController::class, 'toggle'])
+    ->name('wordbooks.words.favorite.toggle');

@@ -30,7 +30,6 @@
             </div>
         @endforeach
 
-        {{-- ＋ 新しい単語帳 --}}
         <form method="POST" action="{{ route('wordbooks.store') }}" class="d-inline">
             @csrf
             <input type="hidden" name="name" value="">
@@ -38,9 +37,6 @@
         </form>
     </div>
 
-    {{-- =======================
-         📄 ノート本文
-    ======================== --}}
     <div class="notebook-page">
 
         <div class="mb-3 d-flex gap-2 flex-wrap align-items-center">
@@ -49,9 +45,7 @@
                   onsubmit="return confirm('この単語帳を削除しますか？（中の単語もすべて削除され、元に戻せません。）')">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn btn-sm btn-outline-danger">
-                    この単語帳を削除
-                </button>
+                <button type="submit" class="btn btn-sm btn-outline-danger">この単語帳を削除</button>
             </form>
 
             <form method="POST" action="{{ route('wordbooks.update', $wordbook) }}"
@@ -62,15 +56,15 @@
                        class="form-control form-control-sm"
                        style="width: 220px;"
                        value="{{ old('name', $wordbook->name) }}">
-                <button type="submit" class="btn btn-sm btn-outline-secondary">
-                    名前変更
-                </button>
+                <button type="submit" class="btn btn-sm btn-outline-secondary">名前変更</button>
             </form>
 
+            {{-- 並び順フォーム --}}
             <form method="GET" action="{{ route('wordbooks.words.index', $wordbook) }}"
                   class="ms-auto d-flex align-items-center gap-1">
                 <input type="hidden" name="q" value="{{ $q }}">
                 <input type="hidden" name="tag" value="{{ $tagId }}">
+                <input type="hidden" name="fav" value="{{ $fav }}">
 
                 <span class="text-muted small">並び順：</span>
 
@@ -97,17 +91,15 @@
             <div class="words-toolbar__left d-flex align-items-center gap-2">
                 <h2 class="m-0">単語一覧</h2>
                 <a href="{{ route('wordbooks.tags.index', $wordbook) }}"
-                   class="btn btn-sm btn-outline-secondary">
-                    🏷 タグ管理
-                </a>
+                   class="btn btn-sm btn-outline-secondary">🏷 タグ管理</a>
             </div>
 
             <form method="GET" action="{{ route('wordbooks.words.index', $wordbook) }}"
                   class="d-flex align-items-center gap-2 flex-wrap">
+
                 <input type="text" name="q" value="{{ $q }}"
                        class="form-control form-control-sm"
-                       style="width: 220px;"
-                       placeholder="検索">
+                       style="width: 220px;" placeholder="検索">
 
                 <select name="tag" class="form-select form-select-sm" style="width: 180px;">
                     <option value="">タグ</option>
@@ -119,13 +111,24 @@
                 </select>
 
                 <input type="hidden" name="sort" value="{{ $sort }}">
+                <input type="hidden" name="fav" value="{{ $fav }}">
+
                 <button type="submit" class="btn btn-sm btn-secondary">検索</button>
+
                 <a href="{{ route('wordbooks.words.index', $wordbook) }}"
                    class="btn btn-sm btn-outline-secondary">クリア</a>
+
+                @if(($fav ?? '') === '1')
+                    <a href="{{ request()->fullUrlWithQuery(['fav' => null]) }}"
+                       class="btn btn-sm btn-warning">★ お気に入り中</a>
+                @else
+                    <a href="{{ request()->fullUrlWithQuery(['fav' => 1]) }}"
+                       class="btn btn-sm btn-outline-warning">☆ お気に入り</a>
+                @endif
             </form>
         </div>
 
-        {{-- 単語追加フォーム --}}
+        {{-- 単語追加フォーム（元のまま維持） --}}
         <div class="card mb-3">
             <div class="card-body">
                 <form method="POST" action="{{ route('wordbooks.words.store', $wordbook) }}"
@@ -172,7 +175,7 @@
             </div>
         </div>
 
-        {{-- 単語一覧 --}}
+        {{-- 単語一覧（元のまま） --}}
         <ul class="list-group words-list">
             @forelse ($words as $word)
                 <li class="list-group-item">
@@ -183,20 +186,34 @@
                             @endif
                             <div class="fw-bold">{{ $word->term }}</div>
                         </div>
+
                         <div class="col-md-4">{!! nl2br(e($word->meaning)) !!}</div>
+
                         <div class="col-md-2">
                             @if ($word->note)
-                                📝 {!! nl2br(e($word->note)) !!}
+                                {!! nl2br(e($word->note)) !!}
                             @endif
                         </div>
+
                         <div class="col-md-2">
                             @foreach ($word->tags as $t)
                                 <span class="badge text-bg-light border">{{ $t->name }}</span>
                             @endforeach
                         </div>
+
                         <div class="col-md-2 text-end">
+                            <form action="{{ route('wordbooks.words.favorite.toggle', [$wordbook, $word]) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit"
+                                        class="btn btn-sm {{ $word->is_favorite ? 'btn-warning' : 'btn-outline-secondary' }} mb-1">
+                                    {{ $word->is_favorite ? '★' : '☆' }}
+                                </button>
+                            </form>
+
                             <a href="{{ route('wordbooks.words.edit', [$wordbook, $word]) }}"
                                class="btn btn-sm btn-outline-primary mb-1">編集</a>
+
                             <form action="{{ route('wordbooks.words.destroy', [$wordbook, $word]) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
@@ -217,9 +234,7 @@
 
     </div>
 </div>
-
 @endsection
-
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script>
