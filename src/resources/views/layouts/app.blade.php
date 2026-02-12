@@ -6,7 +6,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    {{-- ★ ページごとのCSS --}}
+    {{-- ページごとのCSS --}}
     @stack('styles')
 </head>
 <body class="app-bg">
@@ -22,7 +22,11 @@
 
 </div>
 
-{{-- ★ ページごとのJS（Sortable含む） --}}
+{{-- ページごとのJS（Sortable含む） --}}
 @stack('scripts')
+
+{{-- ★ これを追加（超重要） --}}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

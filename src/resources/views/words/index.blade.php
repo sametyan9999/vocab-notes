@@ -39,25 +39,7 @@
 
     <div class="notebook-page">
 
-        <div class="mb-3 d-flex gap-2 flex-wrap align-items-center">
-
-            <form method="POST" action="{{ route('wordbooks.destroy', $wordbook) }}"
-                  onsubmit="return confirm('この単語帳を削除しますか？（中の単語もすべて削除され、元に戻せません。）')">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-sm btn-outline-danger">この単語帳を削除</button>
-            </form>
-
-            <form method="POST" action="{{ route('wordbooks.update', $wordbook) }}"
-                  class="d-flex gap-2 align-items-center">
-                @csrf
-                @method('PATCH')
-                <input type="text" name="name"
-                       class="form-control form-control-sm"
-                       style="width: 220px;"
-                       value="{{ old('name', $wordbook->name) }}">
-                <button type="submit" class="btn btn-sm btn-outline-secondary">名前変更</button>
-            </form>
+        <div class="mb-2 d-flex gap-2 flex-wrap align-items-center">
 
             {{-- 並び順フォーム --}}
             <form method="GET" action="{{ route('wordbooks.words.index', $wordbook) }}"
@@ -78,6 +60,46 @@
                     <label class="btn btn-outline-secondary" for="sort-oldest">古い順</label>
                 </div>
             </form>
+
+            {{-- … メニュー（単語帳設定） --}}
+            <div class="dropdown ms-2">
+                <button class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center"
+                        type="button"
+                        data-bs-toggle="dropdown"
+                        style="width:32px; height:32px; padding:0;">
+                    <span style="font-size:18px; line-height:1;">⋯</span>
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end p-3" style="min-width: 260px;">
+                    <li class="mb-2">
+                        <div class="small text-muted mb-1">単語帳名</div>
+                        <form method="POST" action="{{ route('wordbooks.update', $wordbook) }}"
+                              class="d-flex gap-2 align-items-center">
+                            @csrf
+                            @method('PATCH')
+                            <input type="text" name="name"
+                                   class="form-control form-control-sm"
+                                   value="{{ old('name', $wordbook->name) }}">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary text-nowrap px-2">保存</button>
+                        </form>
+                    </li>
+
+                    <li><hr class="dropdown-divider"></li>
+
+                    <li>
+                        <form method="POST" action="{{ route('wordbooks.destroy', $wordbook) }}"
+                              onsubmit="return confirm('この単語帳を削除しますか？（中の単語もすべて削除され、元に戻せません。）')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+        class="btn btn-sm btn-outline-danger w-100 text-enter">
+    この単語帳を削除
+</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+
         </div>
 
         @if ($errors->has('name'))
@@ -128,7 +150,7 @@
             </form>
         </div>
 
-        {{-- 単語追加フォーム（元のまま維持） --}}
+        {{-- 単語追加フォーム --}}
         <div class="card mb-3">
             <div class="card-body">
                 <form method="POST" action="{{ route('wordbooks.words.store', $wordbook) }}"
@@ -175,7 +197,7 @@
             </div>
         </div>
 
-        {{-- 単語一覧（元のまま） --}}
+        {{-- 単語一覧 --}}
         <ul class="list-group words-list">
             @forelse ($words as $word)
                 <li class="list-group-item">

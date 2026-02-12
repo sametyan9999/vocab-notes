@@ -232,3 +232,7 @@
 .notebook-page::before {
     display: none;
 }
+.notebook-page {
+    /* ここだけ変更 */
+    padding: 24px 48px; /* ← 40px を 24px に */
+}

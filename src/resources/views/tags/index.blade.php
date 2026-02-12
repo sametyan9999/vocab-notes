@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @push('styles')
+    <link rel="stylesheet" href="{{ asset('css/words.css') }}">
     <link rel="stylesheet" href="{{ asset('css/tags.css') }}">
 @endpush
 
@@ -41,7 +42,6 @@
         @forelse($tags as $tag)
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 <div>
-                    {{-- この単語帳の単語一覧へ「タグ絞り込み」で飛ばす --}}
                     <a href="{{ route('wordbooks.words.index', ['wordbook' => $wordbook->id, 'tag' => $tag->id]) }}" class="tag-link">
                         {{ $tag->name }}
                     </a>
