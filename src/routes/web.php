@@ -70,3 +70,8 @@ Route::post('/wordbooks/reorder', [WordbookController::class, 'reorder'])
     ->name('wordbooks.reorder');
 Route::patch('/wordbooks/{wordbook}/words/{word}/favorite', [WordFavoriteController::class, 'toggle'])
     ->name('wordbooks.words.favorite.toggle');
+    Route::get('/wordbooks/{wordbook}/quiz', [WordController::class, 'quiz'])
+    ->name('wordbooks.words.quiz');
+    Route::post('/wordbooks/{wordbook}/quiz/loop',
+    [WordController::class, 'toggleLoop'])
+    ->name('wordbooks.words.quiz.loop');

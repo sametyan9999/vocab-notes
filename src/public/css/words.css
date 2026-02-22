@@ -3,6 +3,7 @@
    目的：一覧が見やすく・検索しやすく
 ========= */
 
+
 /* =========================
    ツールバー（タイトル＋検索）
 ========================= */
@@ -11,34 +12,9 @@
     justify-content: space-between;
     align-items: flex-start;
     gap: 16px;
-    margin-bottom: 12px;
-}
-
-.words-search-mini {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-}
-
-.words-search-mini__q {
-    width: 220px;
-}
-
-.words-search-mini__tag {
-    width: 140px;
-}
-
-.words-sort {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.words-sort__label {
-    margin-right: 4px;
-    white-space: nowrap;
+    margin-top: 12px;
+    /* マイナス禁止（重なり防止） */
+    margin-bottom: 24px;
 }
 
 /* レスポンシブ */
@@ -47,20 +23,13 @@
         flex-direction: column;
         align-items: stretch;
     }
-
-    .words-search-mini {
-        justify-content: flex-start;
-    }
-
-    .words-search-mini__q {
-        width: 100%;
-        max-width: 320px;
-    }
-
-    .words-search-mini__tag {
-        width: 160px;
-    }
 }
+
+/* 上段（並び順 + …）の行 */
+.words-topbar {
+    margin-bottom: 12px;
+}
+
 
 /* =========================
    単語カード表示
@@ -82,20 +51,20 @@
 }
 
 .word-meaning {
-    font-size: .95rem;
-    color: rgba(0, 0, 0, .78);
+    font-size: 0.95rem;
+    color: rgba(0, 0, 0, 0.78);
 }
 
 .word-note {
     margin-top: 6px;
-    font-size: .85rem;
+    font-size: 0.85rem;
     color: #6c757d;
     padding-left: 12px;
 }
 
 .word-tags {
     margin-top: 2px;
-    font-size: .85rem;
+    font-size: 0.85rem;
     padding-left: 12px;
 }
 
@@ -112,33 +81,33 @@
     margin-bottom: 24px;
 }
 
-/* タグチェックボックス */
+
+/* =========================
+   タグチェックボックス
+========================= */
 .tag-checklist {
     display: flex;
     flex-wrap: wrap;
     gap: 10px 14px;
     padding: 10px 12px;
-    border: 1px solid rgba(0, 0, 0, .08);
+    border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 12px;
     background: #fff;
     max-height: 140px;
     overflow: auto;
 }
 
+
 /* =========================
-   画面の外側背景（ノートじゃない）
+   画面の外側背景
 ========================= */
 .app-bg {
     background: #f4f1ea;
 }
 
+
 /* =========================
-   ノートの見出しタブ（入れ替え対応・URL化しない前提）
-   構造：
-   .wordbook-tabs
-     .wordbook-tab-item[data-id][data-href]
-       button.wordbook-tab-btn
-   + form > button.wordbook-tab.add-tab
+   ノートの見出しタブ
 ========================= */
 .wordbook-tabs {
     display: flex;
@@ -147,13 +116,11 @@
     margin-left: 20px;
 }
 
-/* 1タブの箱（Sortableが掴む要素） */
 .wordbook-tab-item {
     display: inline-flex;
     align-items: flex-end;
 }
 
-/* タブ本体（button） */
 .wordbook-tab-btn {
     padding: 6px 16px;
     border-radius: 8px 8px 0 0;
@@ -162,22 +129,18 @@
     font-size: 14px;
     border: 1px solid #d0d0d0;
     border-bottom: none;
-    transition: all .15s ease;
+    transition: all 0.15s ease;
     cursor: grab;
-    /* 入れ替え可能感 */
     user-select: none;
     -webkit-user-select: none;
     touch-action: none;
-    /* モバイル誤動作軽減 */
     line-height: 1.2;
 }
 
-/* hover */
 .wordbook-tab-btn:hover {
     background: #f1f3f5;
 }
 
-/* activeタブ */
 .wordbook-tab-item.is-active .wordbook-tab-btn {
     background: #fffdf7;
     font-weight: 600;
@@ -185,10 +148,8 @@
     position: relative;
     top: 2px;
     cursor: default;
-    /* 選択中は掴めるけど見た目だけ通常に */
 }
 
-/* ＋タブ（form内のsubmitボタン） */
 .wordbook-tab.add-tab {
     padding: 6px 16px;
     border-radius: 8px 8px 0 0;
@@ -200,14 +161,14 @@
     border-bottom: none;
 }
 
-/* Sortableの見た目（任意） */
 .is-ghost {
-    opacity: .4;
+    opacity: 0.4;
 }
 
 .is-chosen {
-    outline: 2px dashed rgba(0, 0, 0, .15);
+    outline: 2px dashed rgba(0, 0, 0, 0.15);
 }
+
 
 /* =========================
    ノート本文（紙部分）
@@ -216,23 +177,82 @@
     background: #fffdf7;
     border-radius: 16px;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
-    padding: 40px 48px;
+    padding: 24px 48px;
     position: relative;
     margin-top: -1px;
     min-height: calc(100vh - 120px);
-
-    /* 横罫線 */
     background-image: repeating-linear-gradient(to bottom,
             transparent,
             transparent 31px,
             #e9e9e9 32px);
 }
 
-/* 赤線は出さない */
 .notebook-page::before {
     display: none;
 }
-.notebook-page {
-    /* ここだけ変更 */
-    padding: 24px 48px; /* ← 40px を 24px に */
+
+
+/* =========================
+   右側エリアのレイアウト安定
+========================= */
+.words-toolbar>.d-flex {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 12px;
+    row-gap: 8px;
+}
+
+.words-toolbar form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.words-toolbar .btn {
+    white-space: nowrap;
+}
+
+.words-toolbar .btn,
+.words-toolbar .form-control,
+.words-toolbar .form-select {
+    flex-shrink: 0;
+}
+
+
+/* =========================
+   並び順ボタンの折り返し対応
+========================= */
+.notebook-page .btn-group {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.notebook-page .btn-group .btn {
+    margin-bottom: 4px;
+}
+/* =========================
+   問題出題ボタン（主役）
+========================= */
+.quiz-btn {
+    background: linear-gradient(135deg, #4f8cff, #7b5cff);
+    color: #fff;
+    font-weight: 600;
+    border: none;
+    padding: 6px 18px;
+    border-radius: 999px;
+    /* 丸み強めで特別感 */
+    box-shadow: 0 6px 16px rgba(79, 140, 255, 0.35);
+    transition: all 0.2s ease;
+}
+
+.quiz-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(79, 140, 255, 0.45);
+    color: #fff;
+}
+
+.quiz-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(79, 140, 255, 0.3);
 }

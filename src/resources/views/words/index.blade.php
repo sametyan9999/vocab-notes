@@ -39,11 +39,11 @@
 
     <div class="notebook-page">
 
-        <div class="mb-2 d-flex gap-2 flex-wrap align-items-center">
+        <div class="words-topbar d-flex flex-wrap align-items-center gap-2 w-100">
 
             {{-- 並び順フォーム --}}
             <form method="GET" action="{{ route('wordbooks.words.index', $wordbook) }}"
-                  class="ms-auto d-flex align-items-center gap-1">
+                  class="ms-auto d-flex flex-wrap align-items-center gap-1">
                 <input type="hidden" name="q" value="{{ $q }}">
                 <input type="hidden" name="tag" value="{{ $tagId }}">
                 <input type="hidden" name="fav" value="{{ $fav }}">
@@ -61,7 +61,7 @@
                 </div>
             </form>
 
-            {{-- … メニュー（単語帳設定） --}}
+            {{-- 単語帳メニュー --}}
             <div class="dropdown ms-2">
                 <button class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center"
                         type="button"
@@ -80,7 +80,7 @@
                             <input type="text" name="name"
                                    class="form-control form-control-sm"
                                    value="{{ old('name', $wordbook->name) }}">
-                            <button type="submit" class="btn btn-sm btn-outline-secondary text-nowrap px-2">保存</button>
+                            <button type="submit" class="btn btn-sm btn-outline-secondary px-2">保存</button>
                         </form>
                     </li>
 
@@ -92,14 +92,13 @@
                             @csrf
                             @method('DELETE')
                             <button type="submit"
-        class="btn btn-sm btn-outline-danger w-100 text-enter">
-    この単語帳を削除
-</button>
+                                    class="btn btn-sm btn-outline-danger w-100">
+                                この単語帳を削除
+                            </button>
                         </form>
                     </li>
                 </ul>
             </div>
-
         </div>
 
         @if ($errors->has('name'))
@@ -108,57 +107,145 @@
             </div>
         @endif
 
-        {{-- タイトル＋検索 --}}
-        <div class="words-toolbar d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div class="words-toolbar__left d-flex align-items-center gap-2">
-                <h2 class="m-0">単語一覧</h2>
-                <a href="{{ route('wordbooks.tags.index', $wordbook) }}"
-                   class="btn btn-sm btn-outline-secondary">🏷 タグ管理</a>
+        {{-- タイトル＋件数表示＋検索 --}}
+<div class="words-toolbar">
+
+    {{-- 左側：タイトル + 件数 + タグ管理 --}}
+    <div class="words-toolbar__left d-flex align-items-start gap-3 flex-wrap">
+        <div>
+            <h2 class="mb-1">単語一覧</h2>
+            <div class="text-muted small">
+                全 {{ $totalCount }} 件中 {{ $filteredCount }} 件表示
             </div>
-
-            <form method="GET" action="{{ route('wordbooks.words.index', $wordbook) }}"
-                  class="d-flex align-items-center gap-2 flex-wrap">
-
-                <input type="text" name="q" value="{{ $q }}"
-                       class="form-control form-control-sm"
-                       style="width: 220px;" placeholder="検索">
-
-                <select name="tag" class="form-select form-select-sm" style="width: 180px;">
-                    <option value="">タグ</option>
-                    @foreach ($tags as $tag)
-                        <option value="{{ $tag->id }}" @selected((string)$tagId === (string)$tag->id)>
-                            {{ $tag->name }}
-                        </option>
-                    @endforeach
-                </select>
-
-                <input type="hidden" name="sort" value="{{ $sort }}">
-                <input type="hidden" name="fav" value="{{ $fav }}">
-
-                <button type="submit" class="btn btn-sm btn-secondary">検索</button>
-
-                <a href="{{ route('wordbooks.words.index', $wordbook) }}"
-                   class="btn btn-sm btn-outline-secondary">クリア</a>
-
-                @if(($fav ?? '') === '1')
-                    <a href="{{ request()->fullUrlWithQuery(['fav' => null]) }}"
-                       class="btn btn-sm btn-warning">★ お気に入り中</a>
-                @else
-                    <a href="{{ request()->fullUrlWithQuery(['fav' => 1]) }}"
-                       class="btn btn-sm btn-outline-warning">☆ お気に入り</a>
-                @endif
-            </form>
         </div>
+
+        <a href="{{ route('wordbooks.tags.index', $wordbook) }}"
+           class="btn btn-sm btn-outline-secondary mt-1">
+            🏷 タグ管理
+        </a>
+    </div>
+
+    @php
+    $quizBase = [
+        'wordbook' => $wordbook->id,
+        'q' => $q,
+        'tag' => $tagId,
+        'fav' => $fav,
+    ];
+@endphp
+
+<div class="words-toolbar__center">
+    <div class="dropdown">
+
+        <button class="btn btn-sm quiz-btn dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+            🎲 問題出題
+        </button>
+
+        <ul class="dropdown-menu dropdown-menu-end p-2" style="min-width: 220px;">
+    <li>
+        <a class="dropdown-item"
+           href="{{ route('wordbooks.words.quiz', [
+                'wordbook' => $wordbook,
+                'q' => $q,
+                'tag' => $tagId,
+                'mode' => 'all',
+           ]) }}">
+            全部（現在の絞り込みを反映）
+        </a>
+    </li>
+
+    <li>
+        <a class="dropdown-item"
+           href="{{ route('wordbooks.words.quiz', [
+                'wordbook' => $wordbook,
+                'q' => $q,
+                'tag' => $tagId,
+                'mode' => 'fav',
+           ]) }}">
+            ★ お気に入りのみ（現在の絞り込みを反映）
+        </a>
+    </li>
+
+    <li><hr class="dropdown-divider my-1"></li>
+
+    <li>
+        @if(empty($tagId))
+            <span class="dropdown-item text-muted">タグ別（選択中のタグから出題）</span>
+            <div class="px-3 pt-1 small text-muted">
+                ※先にタグを選択してください
+            </div>
+        @else
+            <a class="dropdown-item"
+               href="{{ route('wordbooks.words.quiz', [
+                    'wordbook' => $wordbook,
+                    'q' => $q,
+                    'tag' => $tagId,
+                    'mode' => 'tag',
+               ]) }}">
+                タグ別（選択中のタグから出題）
+            </a>
+        @endif
+    </li>
+</ul>
+
+    </div>
+</div>
+
+    {{-- 右側：検索フォーム --}}
+    <div class="words-toolbar__right">
+        <form method="GET" action="{{ route('wordbooks.words.index', $wordbook) }}"
+              class="words-search d-flex align-items-center gap-2 flex-wrap">
+
+            <input type="text" name="q" value="{{ $q }}"
+                   class="form-control form-control-sm"
+                   style="width: 220px;" placeholder="検索">
+
+            <select name="tag" class="form-select form-select-sm" style="width: 180px;">
+                <option value="">タグ</option>
+                @foreach ($tags as $tag)
+                    <option value="{{ $tag->id }}" @selected((string)$tagId === (string)$tag->id)>
+                        {{ $tag->name }}
+                    </option>
+                @endforeach
+            </select>
+
+            <input type="hidden" name="sort" value="{{ $sort }}">
+            <input type="hidden" name="fav" value="{{ $fav }}">
+
+            <button type="submit" class="btn btn-sm btn-secondary">検索</button>
+
+            <a href="{{ route('wordbooks.words.index', $wordbook) }}"
+               class="btn btn-sm btn-outline-secondary">クリア</a>
+
+            @if(($fav ?? '') === '1')
+                <a href="{{ request()->fullUrlWithQuery(['fav' => null]) }}"
+                   class="btn btn-sm btn-warning">★ お気に入り中</a>
+            @else
+                <a href="{{ request()->fullUrlWithQuery(['fav' => 1]) }}"
+                   class="btn btn-sm btn-outline-warning">☆ お気に入り</a>
+            @endif
+
+        </form>
+    </div>
+
+</div>
 
         {{-- 単語追加フォーム --}}
         <div class="card mb-3">
             <div class="card-body">
                 <form method="POST" action="{{ route('wordbooks.words.store', $wordbook) }}"
-                      class="row g-2 align-items-start">
+                      class="row g-2 align-items-start"
+                      novalidate>
                     @csrf
                     <div class="col-md-2">
                         <label class="form-label small mb-1">単語</label>
-                        <input type="text" name="term" class="form-control" value="{{ old('term') }}" required>
+                        <input type="text" name="term" class="form-control" value="{{ old('term') }}">
+                        @error('term')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-2">
                         <label class="form-label small mb-1">読み方</label>
@@ -166,7 +253,10 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label small mb-1">意味</label>
-                        <textarea name="meaning" class="form-control" rows="2" required>{{ old('meaning') }}</textarea>
+                        <textarea name="meaning" class="form-control" rows="2">{{ old('meaning') }}</textarea>
+                        @error('meaning')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-2">
                         <label class="form-label small mb-1">メモ</label>
@@ -198,58 +288,68 @@
         </div>
 
         {{-- 単語一覧 --}}
-        <ul class="list-group words-list">
-            @forelse ($words as $word)
-                <li class="list-group-item">
-                    <div class="row">
-                        <div class="col-md-2">
-                            @if ($word->reading)
-                                <div class="small text-muted">{{ $word->reading }}</div>
-                            @endif
-                            <div class="fw-bold">{{ $word->term }}</div>
-                        </div>
+<ul class="list-group words-list">
+@forelse ($words as $word)
+<li class="list-group-item">
+<div class="row">
 
-                        <div class="col-md-4">{!! nl2br(e($word->meaning)) !!}</div>
+    {{-- 単語 --}}
+    <div class="col-md-2">
+        @if ($word->reading)
+            <div class="small text-muted">{{ $word->reading }}</div>
+        @endif
+        <div class="fw-bold">{{ $word->term }}</div>
+    </div>
 
-                        <div class="col-md-2">
-                            @if ($word->note)
-                                {!! nl2br(e($word->note)) !!}
-                            @endif
-                        </div>
+    {{-- 意味 --}}
+    <div class="col-md-4">
+        {!! nl2br(e($word->meaning)) !!}
+    </div>
 
-                        <div class="col-md-2">
-                            @foreach ($word->tags as $t)
-                                <span class="badge text-bg-light border">{{ $t->name }}</span>
-                            @endforeach
-                        </div>
+    {{-- メモ（広げた） --}}
+    <div class="col-md-4">
+        @if ($word->note)
+            {!! nl2br(e($word->note)) !!}
+        @endif
+    </div>
 
-                        <div class="col-md-2 text-end">
-                            <form action="{{ route('wordbooks.words.favorite.toggle', [$wordbook, $word]) }}" method="POST" class="d-inline">
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit"
-                                        class="btn btn-sm {{ $word->is_favorite ? 'btn-warning' : 'btn-outline-secondary' }} mb-1">
-                                    {{ $word->is_favorite ? '★' : '☆' }}
-                                </button>
-                            </form>
+    {{-- 操作（タグをここに移動） --}}
+    <div class="col-md-2 text-end">
 
-                            <a href="{{ route('wordbooks.words.edit', [$wordbook, $word]) }}"
-                               class="btn btn-sm btn-outline-primary mb-1">編集</a>
+        {{-- タグ --}}
+        @foreach ($word->tags as $t)
+            <span class="badge text-bg-light border me-1">
+                {{ $t->name }}
+            </span>
+        @endforeach
 
-                            <form action="{{ route('wordbooks.words.destroy', [$wordbook, $word]) }}" method="POST">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-sm btn-outline-danger"
-                                        onclick="return confirm('本当に削除しますか？')">削除</button>
-                            </form>
-                        </div>
-                    </div>
-                </li>
-            @empty
-                <li class="list-group-item text-muted">まだ単語がありません</li>
-            @endforelse
-        </ul>
+        <form action="{{ route('wordbooks.words.favorite.toggle', [$wordbook, $word]) }}" method="POST" class="d-inline">
+            @csrf
+            @method('PATCH')
+            <button type="submit"
+                    class="btn btn-sm {{ $word->is_favorite ? 'btn-warning' : 'btn-outline-secondary' }} mb-1">
+                {{ $word->is_favorite ? '★' : '☆' }}
+            </button>
+        </form>
 
+        <a href="{{ route('wordbooks.words.edit', [$wordbook, $word]) }}"
+           class="btn btn-sm btn-outline-primary mb-1">編集</a>
+
+        <form action="{{ route('wordbooks.words.destroy', [$wordbook, $word]) }}" method="POST">
+            @csrf
+            @method('DELETE')
+            <button class="btn btn-sm btn-outline-danger"
+                    onclick="return confirm('本当に削除しますか？')">削除</button>
+        </form>
+
+    </div>
+
+</div>
+</li>
+@empty
+<li class="list-group-item text-muted">まだ単語がありません</li>
+@endforelse
+</ul>
         <div class="mt-3 d-flex justify-content-center">
             {{ $words->links() }}
         </div>
